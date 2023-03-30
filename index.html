@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Making your first Phaser 3 Game - Part 1</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+      var config = {
+        type: Phaser.AUTO,
+        width: 600,
+        height: 600,
+        physics: {
+          default: "arcade",
+          arcade: {
+            gravity: { y: 500 },
+            debug: false, // Set to true to see physics bodies
+          },
+        },
+        scene: {
+          preload: preload,
+          create: create,
+          update: update,
+        },
+      };
+
+      let game = new Phaser.Game(config);
+
+      let sprite;
+      var cuteMessages = ["Give me water!", "Give me cookies!", "I'm sleepy"];
+
+      function preload() {
+        this.load.image("floor", "assets/sky.jpeg");
+        this.load.image("tamagotchi", "assets/cardamomo.png");
+      }
+
+      function create() {
+        // Create the sprite and enable physics
+        sprite = this.physics.add.sprite(400, 320, "tamagotchi");
+        sprite.setScale(0.5);
+        // Create the floor
+        var floor = this.physics.add.staticImage(300, 1000, "floor");
+
+        // Enable collision between the sprite and the floor
+        this.physics.add.collider(sprite, floor, function () {
+          sprite.setVelocity(0); // Reset sprite's velocity when colliding with floor
+        });
+
+        // Make the sprite interactive
+        sprite.setInteractive();
+
+        // Add a pointerdown event to the sprite
+        sprite.on(
+          "pointerdown",
+          function () {
+            sprite.setVelocity(Phaser.Math.RND.between(-200, 200), -300);
+            // Display random cute message
+            var message = Phaser.Math.RND.pick(cuteMessages);
+            var text = this.add.text(sprite.x, sprite.y, message, {
+              font: "20px Arial",
+              fill: "#ffffff",
+            });
+            text.setOrigin(0.5, 1);
+
+            // Remove text after 2 seconds
+            this.time.delayedCall(2000, function () {
+              text.destroy();
+            });
+          },
+          this
+        );
+      }
+
+      function update() {
+        // Reset the sprite if it falls off the bottom of the screen
+        if (sprite.y > 500) {
+          sprite.y = 0;
+        }
+        if (sprite.x > 600) {
+          sprite.x = 0;
+        }
+      }
+    </script>
+  </body>
+</html>
